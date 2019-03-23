@@ -1,5 +1,5 @@
 ---
-title: "Project3"
+title: "Project3 5:23PM"
 author: "David Apolinar, Anthony Muñoz, Christina Valore, Omar Pineda"
 date: "3/12/2019"
 output: html_document
@@ -109,6 +109,5 @@ for(i in 1:nrow(person_skill))
     print("Empty Skill Value, skipping link")
   }
 }
-
 
 dbDisconnect(con)
