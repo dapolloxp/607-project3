@@ -53,15 +53,26 @@ dbDisconnect(con)
 # Get Unique People to Insert
 con <- dbConnect(RMariaDB::MariaDB(), user='x-admin@cunyspsmysql.mysql.database.azure.com', password="7dWa0XUVHtlCJMS", dbname='datascientists' ,host='cunyspsmysql.mysql.database.azure.com')
 
-people_table <- finalDS %>% select(Person, Title, School) %>% unique()
+people_table <- finalDS %>% select(ID,Person, Title, School, HighestLevel, Location, Company) %>% unique()
 
 for(i in 1:nrow(people_table))
 {
-  print(paste0("Inserting Person: ", people_table[i,]$Person, ", Title: ", people_table[i,]$Title, "School: ",people_table[i,]$School) )
+  print(paste0("Inserting Person: ", 
+               people_table[i,]$Person, ", Title: ", 
+               people_table[i,]$Title, "School: ", 
+               people_table[i,]$School, ", Degree: ", 
+               people_table[i,]$HighestLevel, ", Location: ", 
+               people_table[i,]$Location, ", Company: ",
+               people_table[i,]$Company))
   sql <- sprintf("insert into person
-                 (name, title, education)
-                 values ('%s', '%s', '%s');",
-                 people_table[i,]$Person, people_table[i,]$Title, people_table[i,]$School)
+                 (name, title, education, degree, location, company)
+                 values ('%s', '%s', '%s','%s', '%s', '%s');",
+                 people_table[i,]$Person, 
+                 people_table[i,]$Title, 
+                 people_table[i,]$School,
+                 people_table[i,]$HighestLevel, 
+                 people_table[i,]$Location,
+                 people_table[i,]$Company)
   rs <- dbSendQuery(con, sql)
   dbClearResult(rs)
 }
@@ -69,7 +80,7 @@ for(i in 1:nrow(people_table))
 mysql_datascientists <- dbGetQuery(con, 'select * from person')
 mysql_datascientists
 dbDisconnect(con)
-#skilltable$SkillID[skilltable$SkillName == "OpenCV"]
+
 
 
 # Create Many to Many Relationship
