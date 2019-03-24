@@ -5,6 +5,7 @@ date: "3/24/2019"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
+    source_code: embed
 ---
 
 Row {.tabset .tabset-fade}
@@ -29,8 +30,7 @@ ds <- read.csv("https://raw.githubusercontent.com/omarp120/DATA607Week8/master/D
 tidyDS <- gather(ds, "Number", "Skill", Skill1:Skill50) #makes data tall
 finalDS <- tidyDS[tidyDS$Skill != "",] #removes rows with empty skill values
 counts <- as.data.frame(table(finalDS$Skill)) #creates a data frame with skill frequencies
-colnames(counts) <- c("Skill", "Freq")
-wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.01), colors=brewer.pal(8, "Dark2"))
+
 ```
 
 ### SQL Creation and Insertion
@@ -172,5 +172,8 @@ dbDisconnect(con)
 ```
 ### Visualization
 
-
+```{r data vis}
+colnames(counts) <- c("Skill", "Freq")
+wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.01), colors=brewer.pal(8, "Dark2"))
+```
 ### Conclusion
