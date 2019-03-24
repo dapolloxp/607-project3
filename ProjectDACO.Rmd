@@ -16,6 +16,8 @@ Row {.tabset .tabset-fade}
 
 ### Data Load
 
+Several of the top data scientist's information was stored in in a CSV file and was tidy up using dplyr libraries.
+
 ```{r data load}
 library(tidyr)
 library(wordcloud)
@@ -34,6 +36,8 @@ counts <- as.data.frame(table(finalDS$Skill)) #creates a data frame with skill f
 ```
 
 ### SQL Creation and Insertion
+
+DBI was used to create tables on the fly with an Azure SQL DB for MySQL. 
 
 ```{r SQL dataload}
 # Create Skill Table
@@ -174,11 +178,44 @@ dbDisconnect(con)
 
 
 
-### Visualization
+### Word Cloud
 
 ```{r data vis}
 colnames(counts) <- c("Skill", "Freq")
-wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.01), colors=brewer.pal(8, "Dark2"))
+wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.10), colors=brewer.pal(8, "Dark2"))
 ```
+
+### Data Scientists Common Locations
+
+```{r goecode}
+
+#code adapted from http://www.storybench.org/geocode-csv-addresses-r/
+#library(ggmap)
+#register_google(key = "xxx") #removed personal API key
+# Initialize the data frame
+#getOption("ggmap")
+# Loop through the addresses to get the latitude and longitude of each address and add it to the
+# origAddress data frame in new columns lat and lon
+#for(i in 1:nrow(ds))
+#{
+  # Print("Working...")
+#  result <- geocode(ds$Location[i], output = "latlon", source = "google")
+#  ds$lon[i] <- as.numeric(result[1])
+ # ds$lat[i] <- as.numeric(result[2])
+#}
+# Write a CSV file containing origAddress to the working directory
+#write.csv(ds, "geocoded.csv", row.names=FALSE)
+```
+
+```{r map}
+library(leaflet)
+cities <- read.csv("https://raw.githubusercontent.com/omarp120/DATA607Week8/master/geocoded.csv")
+cities  %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(clusterOption=markerClusterOptions())
+```
+
+
 ### Conclusion
 
