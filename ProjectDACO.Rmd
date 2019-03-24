@@ -37,7 +37,12 @@ counts <- as.data.frame(table(finalDS$Skill)) #creates a data frame with skill f
 
 ### SQL Creation and Insertion
 
-DBI was used to create tables on the fly with an Azure SQL DB for MySQL. 
+DBI was used to create tables on the fly with an Azure SQL DB for MySQL. The databases were created from R and all insert statements were completed from R. The following tables were created:
+
+Skills Table
+Person Table
+
+The tables were created with a Many to Many relationship.
 
 ```{r SQL dataload}
 # Create Skill Table
@@ -99,7 +104,15 @@ mysql_dataskills <- dbGetQuery(con, 'select * from skills
                                limit 10')
 mysql_dataskills
 dbDisconnect(con)
+```
 
+Below is a list of the people being pulled from a database.
+
+mysql_datascientists <- dbGetQuery(con, 'select name,education,degree,title,company,location from person
+                                   limit 10;')
+We limit the results to only 10 rows.
+
+```{r insert peope}
 # Get Unique People to Insert
 con <- dbConnect(RMariaDB::MariaDB(), user='x-admin@cunyspsmysql.mysql.database.azure.com', password="7dWa0XUVHtlCJMS", dbname='datascientists' ,host='cunyspsmysql.mysql.database.azure.com')
 
@@ -127,7 +140,7 @@ for(i in 1:nrow(people_table))
   dbClearResult(rs)
 }
 
-mysql_datascientists <- dbGetQuery(con, 'select * from person
+mysql_datascientists <- dbGetQuery(con, 'select name,education,degree,title,company,location from person
                                    limit 10;')
 mysql_datascientists
 dbDisconnect(con)
