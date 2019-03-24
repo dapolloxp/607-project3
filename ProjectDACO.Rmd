@@ -13,8 +13,13 @@ Row {.tabset .tabset-fade}
 
 ### Overview
 
+Data was brough in two ways: via scraping and manual collection. The manual collection was taken from LinkedIn profiles, where we collected 40 data scientists information including: education, school, location,and skills. For the scraping, we used the kdnuggets website to look at tools currently used by data scientist's and trends from 2017 - 2018. 
+
+The LinkedIn data was then added to a relational database and tidied inside of R. The scraped data was brought directly into R. After the data was in their respective dataframes, we then graphed, created wordclouds and used a map to analyze the data. For the graphing, we made use of the ggplot library and for the map we used ggmap package.
 
 ### Data Load
+
+Several of the top data scientist's information was stored in in a CSV file and was tidy up using dplyr libraries.
 
 ```{r data load}
 library(tidyr)
@@ -25,6 +30,10 @@ library(RColorBrewer)
 library(magrittr)
 library(DBI)
 library(dplyr)
+library(rvest)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
 #  Data Files
 ds <- read.csv("https://raw.githubusercontent.com/omarp120/DATA607Week8/master/DataScientists.csv", header=TRUE, stringsAsFactors = FALSE)
 tidyDS <- gather(ds, "Number", "Skill", Skill1:Skill50) #makes data tall
@@ -34,6 +43,13 @@ counts <- as.data.frame(table(finalDS$Skill)) #creates a data frame with skill f
 ```
 
 ### SQL Creation and Insertion
+
+DBI was used to create tables on the fly with an Azure SQL DB for MySQL. The databases were created from R and all insert statements were completed from R. The following tables were created:
+
+Skills Table
+Person Table
+
+The tables were created with a Many to Many relationship.
 
 ```{r SQL dataload}
 # Create Skill Table
@@ -95,7 +111,15 @@ mysql_dataskills <- dbGetQuery(con, 'select * from skills
                                limit 10')
 mysql_dataskills
 dbDisconnect(con)
+```
 
+Below is a list of the people being pulled from a database.
+
+mysql_datascientists <- dbGetQuery(con, 'select name,education,degree,title,company,location from person
+                                   limit 10;')
+We limit the results to only 10 rows.
+
+```{r insert peope}
 # Get Unique People to Insert
 con <- dbConnect(RMariaDB::MariaDB(), user='x-admin@cunyspsmysql.mysql.database.azure.com', password="7dWa0XUVHtlCJMS", dbname='datascientists' ,host='cunyspsmysql.mysql.database.azure.com')
 
@@ -123,7 +147,7 @@ for(i in 1:nrow(people_table))
   dbClearResult(rs)
 }
 
-mysql_datascientists <- dbGetQuery(con, 'select * from person
+mysql_datascientists <- dbGetQuery(con, 'select name,education,degree,title,company,location from person
                                    limit 10;')
 mysql_datascientists
 dbDisconnect(con)
@@ -170,15 +194,105 @@ for(i in 1:nrow(person_skill))
 
 dbDisconnect(con)
 ```
+
 ### Web Scraping Information
 
+```{r}
+data <- read_html("https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html")
+table1 <- data %>% html_nodes("table") %>% .[1] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='' ) %>% as.data.frame()  %>% droplevels()
+colnames(table1) <- c("Software", "2018 % share","% change 2018 vs 2017")
+#as.numeric(as.character(table1$`2018 % share`))
+table2 <- data %>% html_nodes("table") %>% .[2] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table2) <- c("Tool", "% change","2018 % share","2017 % share")
+table3 <- data %>% html_nodes("table") %>% .[3] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table3) <- c("Tool", "% change","2018 % share","2017 % share")
+table4 <- data %>% html_nodes("table") %>% .[4] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='') %>% as.data.frame()
+colnames(table4) <- c("Tool", "% change","2018 % share","2017 % share")
+```
 
 
-### Visualization
+### Web Scraping analysis
+
+```{r web scrape analysis}
+
+#Table 1: Top software
+ggplot(table1,aes(x=Software, y=`% change 2018 vs 2017`,fill= Software)) + geom_bar(stat="identity") + scale_fill_brewer(palette="Set3") + xlab("Software") + ylab("Percent Change") +  ggtitle("Top Analytics Software in 2018") + theme(legend.position = "none",  
+            axis.text.x = element_text(angle = 25, hjust = 1))
+
+#Table 2: Top software with increase in usage
+ggplot(table2,aes(x=Tool, y=`% change`, fill = Tool)) + geom_bar(stat="identity")+ scale_fill_brewer(palette="Paired") + xlab("Software") +  ylab("Percent Change") +  ggtitle("Major Analytics Tools with largest increase from 2017 - 2018")  + theme(legend.position = "none", axis.text.x = element_text(angle = 25, hjust = 1))
+
+#Table 3: Top software with decline in usage
+
+#n is large so we must increase the palatte size
+colorCount = length(unique(table3$Tool))
+getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+
+ggplot(table3,aes(x=Tool, y=`% change`, fill = Tool)) + geom_bar(stat="identity", fill=getPalette(colorCount)) + xlab("Software") +  ylab("Percent Change") +  ggtitle("Major Analytics Tools with largest decline from 2017 - 2018")  + theme(legend.position = "none", axis.text.x = element_text(angle = 25, hjust = 1))
+
+#Table 4: Big data tools decline
+ggplot(table4,aes(x=Tool, y=`% change`, fill = Tool)) + geom_bar(stat="identity")+ scale_fill_brewer(palette="Set2") + xlab("Software") +  ylab("Percent Change") +  ggtitle("Decline in Big Data Tools Usage from 2017 - 2018")  + theme(legend.position = "none", axis.text.x = element_text(angle = 25, hjust = 1))
+
+```
+
+### Word Cloud
+
+Using a word cloud graph, we can visually see that the most common skills amoung the top data scientists are Machine Learning, Data Mining, Python, Data Analysis, and Algoritms.
 
 ```{r data vis}
 colnames(counts) <- c("Skill", "Freq")
-wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.01), colors=brewer.pal(8, "Dark2"))
+wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.10), colors=brewer.pal(8, "Dark2"))
 ```
+
+### Data Scientists Common Locations
+
+```{r goecode}
+
+#code adapted from http://www.storybench.org/geocode-csv-addresses-r/
+#library(ggmap)
+#register_google(key = "xxx") #removed personal API key
+# Initialize the data frame
+#getOption("ggmap")
+# Loop through the addresses to get the latitude and longitude of each address and add it to the
+# origAddress data frame in new columns lat and lon
+#for(i in 1:nrow(ds))
+#{
+  # Print("Working...")
+#  result <- geocode(ds$Location[i], output = "latlon", source = "google")
+#  ds$lon[i] <- as.numeric(result[1])
+ # ds$lat[i] <- as.numeric(result[2])
+#}
+# Write a CSV file containing origAddress to the working directory
+#write.csv(ds, "geocoded.csv", row.names=FALSE)
+```
+
+```{r map}
+library(leaflet)
+cities <- read.csv("https://raw.githubusercontent.com/omarp120/DATA607Week8/master/geocoded.csv")
+cities  %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(clusterOption=markerClusterOptions())
+```
+
+### Top Skills Analysis
+
+```{r skill graph}
+
+# grouped by skill and summarized into new data frame
+skill_df<-finalDS %>%
+  group_by(Skill) %>%
+  summarize(n())
+
+skill_df_top<-arrange(skill_df,desc(`n()`))
+
+top10<- head(skill_df_top,10)
+
+ggplot(top10,aes(x=Skill, y=`n()`,fill= top10$Skill)) + geom_bar(stat="identity") + scale_fill_brewer(palette="Spectral") + xlab("Skill") + ylab("Count") +  ggtitle("Top 10 Data Scientist Skills ") + theme(legend.position = "none",  
+            axis.text.x = element_text(angle = 25, hjust = 1))
+```
+
 ### Conclusion
+
+For the top data scientist skills, we can see machine learning followed by data mining and Python are at the top of the list. This could be due to the increased demand of predicitive analytics. In terms of datat science software, there is a decrease in the use of R, while there is a signifigant increase in RapidMiner from 2017 to 2018. Other tools with increased adoption from 2017 - 2018 are Keras and PyTorch, while Caffe and Machine Learning Server saw over a 50% decline in usage. 
 
