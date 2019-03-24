@@ -1,6 +1,6 @@
 ---
 title: "Project 3 - Data Science Skills"
-author: "David Apolinar, Anthony Muñoz, Christina Valore, Omar Pineda"
+author: "David Apolinar, Anthony Muñoz, Christina Valore, Omar Pineda."
 date: "3/24/2019"
 output: 
   flexdashboard::flex_dashboard:
