@@ -197,7 +197,11 @@ dbDisconnect(con)
 
 ### Web Scraping Information
 
+
+On this section we did web scraping on the KDnuggets website where we gather some information about a Software poll about what’s tools in percent the software developer and data Scientist have share and use more. we can look at the major analytics tools, language programing and others tools and also the increasing and decreasing of those tools between years 2017-2018.
+
 ```{r}
+
 data <- read_html("https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html")
 table1 <- data %>% html_nodes("table") %>% .[1] %>% html_table(fill = T) %>% as.data.frame() %>% lapply( gsub, pattern='%', replacement='' ) %>% as.data.frame()  %>% droplevels()
 colnames(table1) <- c("Software", "2018 % share","% change 2018 vs 2017")
