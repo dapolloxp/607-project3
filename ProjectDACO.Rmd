@@ -300,3 +300,7 @@ ggplot(top10,aes(x=Skill, y=`n()`,fill= top10$Skill)) + geom_bar(stat="identity"
 
 For the top data scientist skills, we can see machine learning followed by data mining and Python are at the top of the list. This could be due to the increased demand of predicitive analytics. In terms of datat science software, there is a decrease in the use of R, while there is a signifigant increase in RapidMiner from 2017 to 2018. Other tools with increased adoption from 2017 - 2018 are Keras and PyTorch, while Caffe and Machine Learning Server saw over a 50% decline in usage. 
 
+### References
+
+1-) Web Scrapping website,data retrieved 3/21/2019
+https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html
