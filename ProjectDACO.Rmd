@@ -170,6 +170,10 @@ for(i in 1:nrow(person_skill))
 
 dbDisconnect(con)
 ```
+### Web Scraping Information
+
+
+
 ### Visualization
 
 ```{r data vis}
@@ -177,3 +181,4 @@ colnames(counts) <- c("Skill", "Freq")
 wordcloud(counts$Skill, counts$Freq, random.order = FALSE, scale = c(2, 0.01), colors=brewer.pal(8, "Dark2"))
 ```
 ### Conclusion
+
