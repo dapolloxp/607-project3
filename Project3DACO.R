@@ -30,6 +30,36 @@ skillids <- 1:nrow(skilltable)
 skilltable <- cbind.data.frame(skilltable,skillids)
 names(skilltable) <- c("SkillName", "SkillID")
 
+# Run SQL statements to create tables 
+
+con <- dbConnect(RMariaDB::MariaDB(), user='x-admin@cunyspsmysql.mysql.database.azure.com', password="7dWa0XUVHtlCJMS", dbname='datascientists' ,host='cunyspsmysql.mysql.database.azure.com')
+
+rs<- dbSendStatement(con, "drop table if exists person_skills;")
+dbClearResult(rs)
+rs<-dbSendStatement(con, "drop table if exists person;")
+dbClearResult(rs)
+rs<-dbSendStatement(con, "drop table if exists skills;")
+dbClearResult(rs)
+
+rs <- dbSendStatement(con, "CREATE TABLE person (
+                personid int NOT NULL auto_increment primary key,
+                title nchar(50),
+                name nchar(50) NOT NULL,
+                education nchar(50),
+                degree nchar(50),
+                location nchar(50),
+                company nchar(50));")
+dbClearResult(rs)
+rs<- dbSendStatement(con, "CREATE TABLE skills (
+                skillid int NOT NULL auto_increment primary key,
+                skillname nchar(50) NOT NULL);")
+dbClearResult(rs)
+rs<- dbSendStatement(con, "CREATE TABLE person_skills (
+personid int NOT NULL references person(personid),
+                skillid int NOT NULL references skills(skillid),
+                CONSTRAINT person_skill primary key(personid, skillid));")
+dbClearResult(rs)
+dbDisconnect(con)
 # Create SQL Connection
 
 con <- dbConnect(RMariaDB::MariaDB(), user='x-admin@cunyspsmysql.mysql.database.azure.com', password="7dWa0XUVHtlCJMS", dbname='datascientists' ,host='cunyspsmysql.mysql.database.azure.com')

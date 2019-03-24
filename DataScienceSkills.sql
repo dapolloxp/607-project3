@@ -13,7 +13,10 @@ CREATE TABLE person (
 personid int NOT NULL auto_increment primary key,
 title nchar(50),
 name nchar(50) NOT NULL,
-education nchar(50)
+education nchar(50),
+degree nchar(50),
+location nchar(50),
+company nchar(50)
 );
 
 CREATE TABLE skills (
@@ -27,6 +30,11 @@ skillid int NOT NULL references skills(skillid),
 CONSTRAINT person_skill primary key(personid, skillid)
 );
 
+
+
+select distinct(skillname), skillid
+FROM skills;
+
 insert into person(name, title, education) 
 VALUES
 ("Cassie Kozyrkov", "Chief Decision Scientist", "PhD"); #1
@@ -37,10 +45,10 @@ select * from skills;
 
 select * from person_skills;
 
-select count(skillname) from person as p
+select * from person as p
 join person_skills as ps
 on p.personid = ps.personid
 join skills as s
 on ps.skillid = s.skillid
-where p.personid = 11;
+where s.skillid = 330;
 

@@ -7,24 +7,100 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(curl)
+library(rjson)
+library(dplyr)
+library(jsonlite)
+library(XML)
+library(RCurl)
+require(Rlinkedin)
+library(httr)
+library(shiny)
 ```
 
-## R Markdown
+```{r}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+shinyServer(function(input, output) {
 
-```{r cars}
-summary(cars)
+  output$GrantPermission <- reactive ({
+
+    ### App ID
+    app_name <- "r-test"
+    consumer_key <- "78uvmv4ly4ep8i"
+    consumer_secret <- "Pwmg5mJYTgbM2Xt7"
+    
+    #linkedin <- oauth_endpoint("requestToken", "authorize", "accessToken", base_url = "https://api.linkedin.com/uas/oauth/")
+    linkedin <- oauth_endpoint("requestToken", "authorization", "accessToken",
+    base_url = "https://www.linkedin.com/oauth/v2"
+    )
+
+    #myapp <- oauth_app("linkedin", key = "abc", secret = "def")
+    
+    myapp <- oauth_app("r-vest",key = consumer_key, secret = consumer_secret)
+
+    #token <- oauth1.0_token(linkedin, myapp)
+    token2 <- oauth2.0_token(linkedin, myapp, scope = c("r_liteprofile", "r_emailaddress", "w_member_social"), use_oob = TRUE )
+
+    #sig <- sign_oauth1.0(myapp, token$oauth_token, token$oauth_token_secret)
+
+    save.image(paste(input$userEmail, ".RData"))
+  })
+})
+
 ```
+#in.auth <- inOAuth(app_name, consumer_key, consumer_secret)
 
-## Including Plots
+```{r}
 
-You can also embed plots, for example:
+#my.connections <- getMyConnections(in.auth)
+#httr::oauth_app(a)
+###
+linkedin <- oauth_endpoint("requestToken", "authorization", "accessToken",
+base_url = "https://www.linkedin.com/oauth/v2"
+)
+###
+myapp <- oauth_app("r-vest",
+  key = consumer_key,
+  secret = consumer_secret,
+  redirect_uri = oauth_callback()
+)
+#token <- oauth2.0_token(endpoint = linkedin, app = myapp)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+#req <- GET("https://api.linkedin.com/v2/me", config(token = token2, verbose = TRUE))
+#stop_for_status(req)
+#content(req)
+
+##
+
+#token2 <- oauth2.0_token(linkedin, myapp, scope = c("r_liteprofile", "r_emailaddress", "w_member_social"), use_oob = TRUE )
+
+##
+#token2$init_credentials()
+
+
+##
+#req2 <- GET("https://www.linkedin.com/title/data-scientist", config(token = token2, verbose = TRUE))
+#stop_for_status(req2)
+#data <- content(req2)
+
+#saveXML(data, file = "data2.xml")
+## 
+#load("data2.xml")
+#req3 <- GET("https://www.linkedin.com/jobs/search/?keywords=data%20science&location=United%20States&locationId=us%3A0", config(token = token2))
+#stop_for_status(req3)
+#data2 <- content(req3)
+
+#xml_find_all(data2, "//*") %>% xml_text()
+
+
+#xml_find_all(data, ".//*") 
+#xml_find_all(data, ".//*") %>% xml_nodes(".stats-text-header,.median-amount,.stat-text") %>% xml_text()
+
+# Skills
+#df1<-xml_find_all(data, ".//*") %>% xml_nodes(".skill a") %>% xml_text()
+#xml_find_all(data, ".//*") %>% xml_nodes(".stats-text-list") %>% xml_text()
+
+
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
