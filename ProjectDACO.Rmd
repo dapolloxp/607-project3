@@ -13,7 +13,7 @@ Row {.tabset .tabset-fade}
 
 ### Overview
 
-Data was brough in two ways: via scraping and manual collection. The manual collection was taken from LinkedIn profiles, where we collected 40 data scientists information including: education, school, location,and skills. For the scraping, we used the kdnuggets website to look at tools currently used by data scientist's and trends from 2017 - 2018. 
+Data was brought in the database in two ways: via scraping and manual collection. The manual collection was taken from LinkedIn profiles, where we collected 40 data scientists information including: education, school, location,and skills. For the scraping, we used the kdnuggets website to look at tools currently used by data scientist's and trends from 2017 - 2018. 
 
 The LinkedIn data was then added to a relational database and tidied inside of R. The scraped data was brought directly into R. After the data was in their respective dataframes, we then graphed, created wordclouds and used a map to analyze the data. For the graphing, we made use of the ggplot library and for the map we used ggmap package.
 
